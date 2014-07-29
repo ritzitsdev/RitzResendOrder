@@ -31,9 +31,9 @@
       this.lblOrderNum = new System.Windows.Forms.Label();
       this.txtOrderNum = new System.Windows.Forms.TextBox();
       this.btnSearch = new System.Windows.Forms.Button();
-      this.lblOrderInfo = new System.Windows.Forms.Label();
-      this.label1 = new System.Windows.Forms.Label();
-      this.label2 = new System.Windows.Forms.Label();
+      this.pnlOrderInfo = new System.Windows.Forms.Panel();
+      this.btnRemake = new System.Windows.Forms.Button();
+      this.btnCancel = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // lblOrderNum
@@ -62,40 +62,40 @@
       this.btnSearch.UseVisualStyleBackColor = true;
       this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
       // 
-      // lblOrderInfo
+      // pnlOrderInfo
       // 
-      this.lblOrderInfo.AutoSize = true;
-      this.lblOrderInfo.Location = new System.Drawing.Point(12, 51);
-      this.lblOrderInfo.Name = "lblOrderInfo";
-      this.lblOrderInfo.Size = new System.Drawing.Size(0, 13);
-      this.lblOrderInfo.TabIndex = 3;
+      this.pnlOrderInfo.AutoScroll = true;
+      this.pnlOrderInfo.Location = new System.Drawing.Point(6, 40);
+      this.pnlOrderInfo.Name = "pnlOrderInfo";
+      this.pnlOrderInfo.Size = new System.Drawing.Size(327, 272);
+      this.pnlOrderInfo.TabIndex = 3;
       // 
-      // label1
+      // btnRemake
       // 
-      this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(6, 68);
-      this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(35, 13);
-      this.label1.TabIndex = 4;
-      this.label1.Text = "label1";
+      this.btnRemake.Location = new System.Drawing.Point(32, 328);
+      this.btnRemake.Name = "btnRemake";
+      this.btnRemake.Size = new System.Drawing.Size(190, 30);
+      this.btnRemake.TabIndex = 4;
+      this.btnRemake.Text = "Save Changes && Remake Order";
+      this.btnRemake.UseVisualStyleBackColor = true;
       // 
-      // label2
+      // btnCancel
       // 
-      this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(6, 88);
-      this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(35, 13);
-      this.label2.TabIndex = 5;
-      this.label2.Text = "label2";
+      this.btnCancel.Location = new System.Drawing.Point(228, 328);
+      this.btnCancel.Name = "btnCancel";
+      this.btnCancel.Size = new System.Drawing.Size(75, 30);
+      this.btnCancel.TabIndex = 5;
+      this.btnCancel.Text = "Cancel";
+      this.btnCancel.UseVisualStyleBackColor = true;
       // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(312, 269);
-      this.Controls.Add(this.label2);
-      this.Controls.Add(this.label1);
-      this.Controls.Add(this.lblOrderInfo);
+      this.ClientSize = new System.Drawing.Size(338, 370);
+      this.Controls.Add(this.btnCancel);
+      this.Controls.Add(this.btnRemake);
+      this.Controls.Add(this.pnlOrderInfo);
       this.Controls.Add(this.btnSearch);
       this.Controls.Add(this.txtOrderNum);
       this.Controls.Add(this.lblOrderNum);
@@ -112,9 +112,9 @@
     private System.Windows.Forms.Label lblOrderNum;
     private System.Windows.Forms.TextBox txtOrderNum;
     private System.Windows.Forms.Button btnSearch;
-    private System.Windows.Forms.Label lblOrderInfo;
-    private System.Windows.Forms.Label label1;
-    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.Panel pnlOrderInfo;
+    private System.Windows.Forms.Button btnRemake;
+    private System.Windows.Forms.Button btnCancel;
   }
 }
 

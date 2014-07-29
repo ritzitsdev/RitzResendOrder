@@ -22,6 +22,7 @@ namespace RemakeOrder
 
     private void btnSearch_Click(object sender, EventArgs e)
     {
+      pnlOrderInfo.Controls.Clear();
       if (txtOrderNum.Text.Equals(String.Empty))
       {
         MessageBox.Show("Please enter an order number.");
@@ -34,7 +35,13 @@ namespace RemakeOrder
 
       if (orderPath.Equals(string.Empty))
       {
-        lblOrderInfo.Text = "Order not found.";
+        Label txtLabel = new Label();
+        txtLabel.Name = "lblOrderInfo";
+        txtLabel.Text = "Order not found.";
+        txtLabel.Left = 6;
+        txtLabel.Top = 5;
+
+        pnlOrderInfo.Controls.Add(txtLabel);
       }
       else
       {
@@ -53,26 +60,26 @@ namespace RemakeOrder
       {
         if (orderField.Element("store") != null)
         {
-          addTxtBox("Store Number: ", orderField.Element("store").Attribute("store_id").Value, "txtStoreNum", 6, 68);
-          addTxtBox("Store Phone: ", orderField.Element("store").Attribute("store_phone").Value, "txtStorePhone", 6, 88);
-          addTxtBox("APM ID: ", orderField.Attribute("apm_id").Value, "txtApmId", 6, 108);
+          addTxtBox("Store Number: ", orderField.Element("store").Attribute("store_id").Value, "txtStoreNum", 6, 5);
+          addTxtBox("Store Phone: ", orderField.Element("store").Attribute("store_phone").Value, "txtStorePhone", 6, 27);
+          addTxtBox("APM ID: ", orderField.Attribute("apm_id").Value, "txtApmId", 6, 49);
           addTxtBox("Customer Name: ",
             orderField.Element("shipment").Attribute("fname").Value + " " + orderField.Element("shipment").Attribute("lname").Value,
-            "txtCustName", 6, 128);
-          addTxtBox("Customer Phone: ", orderField.Element("shipment").Attribute("phone").Value, "txtCustPhone", 6, 148);
+            "txtCustName", 6, 71);
+          addTxtBox("Customer Phone: ", orderField.Element("shipment").Attribute("phone").Value, "txtCustPhone", 6, 93);
         }
         else
         {
           addTxtBox("Customer Name: ",
             orderField.Element("shipment").Attribute("fname").Value + " " + orderField.Element("shipment").Attribute("lname").Value,
-            "txtCustName", 6, 68);
-          addTxtBox("Phone: ", orderField.Element("shipment").Attribute("phone").Value, "txtCustPhone", 6, 88);
-          addTxtBox("Email: ", orderField.Element("shipment").Attribute("email").Value, "txtCustEmail", 6, 108);
-          addTxtBox("Address: ", orderField.Element("shipment").Attribute("address1").Value, "txtCustAddr", 6, 128);
-          addTxtBox("City: ", orderField.Element("shipment").Attribute("city").Value, "txtCustCity", 6, 148);
-          addTxtBox("State: ", orderField.Element("shipment").Attribute("state").Value, "txtCustState", 6, 168);
-          addTxtBox("Zip: ", orderField.Element("shipment").Attribute("zip").Value, "txtCustZip", 6, 188);
-          addTxtBox("Delivery Method: ", orderField.Element("shipment").Attribute("delivery_method").Value, "txtDeliveryMethod", 6, 208);
+            "txtCustName", 6, 5);
+          addTxtBox("Phone: ", orderField.Element("shipment").Attribute("phone").Value, "txtCustPhone", 6, 27);
+          addTxtBox("Email: ", orderField.Element("shipment").Attribute("email").Value, "txtCustEmail", 6, 49);
+          addTxtBox("Address: ", orderField.Element("shipment").Attribute("address1").Value, "txtCustAddr", 6, 71);
+          addTxtBox("City: ", orderField.Element("shipment").Attribute("city").Value, "txtCustCity", 6, 93);
+          addTxtBox("State: ", orderField.Element("shipment").Attribute("state").Value, "txtCustState", 6, 115);
+          addTxtBox("Zip: ", orderField.Element("shipment").Attribute("zip").Value, "txtCustZip", 6, 137);
+          addTxtBox("Delivery Method: ", orderField.Element("shipment").Attribute("delivery_method").Value, "txtDeliveryMethod", 6, 159);
         }
       }
     } //end showOrderInfo
@@ -84,35 +91,35 @@ namespace RemakeOrder
       var qryProducts = from products in orderXml.Elements("apm_order").Elements("shipment").Elements("order_item")
                              select products;
       int i = 0;
-      double q = 12.4;
+      double q = 8.68;
       foreach (var product in qryProducts)
       {
-        double dblyStart = (i + q) * 20;
+        double dblyStart = (i + q) * 22;
         int yStart = Convert.ToInt32(dblyStart);
         Label redoLabel = new Label();
-        redoLabel.Text = "Remake this order item? ";
+        redoLabel.Text = "Remake this item? ";
         redoLabel.Left = 6;
-        redoLabel.Top = yStart;
+        redoLabel.Top = yStart - 2;
         redoLabel.Name = "redoLabel_" + i;
 
         CheckBox chkBox = new CheckBox();
         chkBox.Checked = false;
         chkBox.Name = "chkRedo_" + i;
-        chkBox.Left = 24;
-        chkBox.Top = yStart;
+        chkBox.Left = 106;
+        chkBox.Top = yStart - 8;
 
-        Controls.Add(redoLabel);
-        Controls.Add(chkBox);
+        pnlOrderInfo.Controls.Add(redoLabel);
+        pnlOrderInfo.Controls.Add(chkBox);
 
-        yStart += 20;
+        yStart += 22;
         addTxtBox("Product: ", product.Attribute("name").Value, "txtProdName_" + i, 6, yStart);
-        yStart += 20;
+        yStart += 22;
         addTxtBox("Product Id: ", product.Attribute("product").Value, "txtProductId_" + i, 6, yStart);
-        yStart += 20;
+        yStart += 22;
         addTxtBox("Quantity: ", product.Attribute("quantity").Value, "txtQuantity_" + i, 6, yStart);
-        yStart += 20;
+        yStart += 32;
 
-        q = yStart / 20;
+        q = yStart / 22;
         i += 1;
       }
     } //end showProductInfo
@@ -127,11 +134,12 @@ namespace RemakeOrder
       TextBox txtBox = new TextBox();
       txtBox.Name = txtBoxName;
       txtBox.Text = txtBoxValue;
-      txtBox.Left = txtBoxLabel.Length + 6;
-      txtBox.Top = yStart;
+      txtBox.Left = 106;
+      txtBox.Top = yStart - 5;
+      txtBox.Width = 198;
 
-      Controls.Add(txtLabel);
-      Controls.Add(txtBox);
+      pnlOrderInfo.Controls.Add(txtLabel);
+      pnlOrderInfo.Controls.Add(txtBox);
     } //end addTxtBox
 
     private static string findOrder(string orderFolder)
