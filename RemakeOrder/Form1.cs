@@ -59,7 +59,6 @@ namespace RemakeOrder
                            select orderFields;
       foreach (var orderField in qryOrderFields)
       {
-        int i = 5;
         if (orderField.Element("store") != null)
         {
             addTxtBox("Store Number: ", orderField.Element("store").Attribute("store_id").Value, "txtStoreNum", 6, 5);
