@@ -151,25 +151,40 @@ namespace RemakeOrder
     {
       string orderPath = string.Empty;
       string xmlSettings = @"C:\Program Files\ITS\RemakeOrder\remakeorder.xml";
-      XDocument folderPaths = XDocument.Load(xmlSettings);
-      var qrySearchFolders = from paths in folderPaths.Elements("folder_paths").Elements("search_folders").Elements("location")
-                           select paths;
-      foreach (XElement path in qrySearchFolders)
+      try
       {
-        string searchFolder = Path.Combine(path.Value, orderFolder);
-        if (Directory.Exists(searchFolder))
+        XDocument folderPaths = XDocument.Load(xmlSettings);
+        var qrySearchFolders = from paths in folderPaths.Elements("folder_paths").Elements("search_folders")
+                               select paths;
+        foreach (XElement path in qrySearchFolders)
         {
-          orderPath = searchFolder;
-          break;
+          if (path.IsEmpty)
+          {
+            MessageBox.Show("It looks like the search folders have not been setup.\nPlease setup folders before continuing.");
+          }
+          else
+          {
+            string searchFolder = Path.Combine(path.Element("location").Value, orderFolder);
+            if (Directory.Exists(searchFolder))
+            {
+              orderPath = searchFolder;
+              break;
+            }
+          }
         }
       }
-      return orderPath;
+      catch
+      {
+        MessageBox.Show("It looks like the search folders have not been setup.\nPlease setup folders before continuing.");
+      }
+        return orderPath;
     } //end findOrder
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
       pnlOrderInfo.Controls.Clear();
       txtOrderNum.Text = string.Empty;
+      lblOrderPath.Text = string.Empty;
     }
 
     private void btnRemake_Click(object sender, EventArgs e)
@@ -183,7 +198,15 @@ namespace RemakeOrder
                           select outputFolders;
       foreach (XElement outputFolder in qryOutputFolders)
       {
-        newOrderFolder = outputFolder.Value;
+        if (outputFolder.IsEmpty)
+        {
+          MessageBox.Show("No print folder has been setup.\nPlease setup a print folder before continuing.");
+          return;
+        }
+        else
+        {
+          newOrderFolder = outputFolder.Element("location").Value;
+        }
       }
 
       string newOrderPath = Path.Combine(newOrderFolder, newOrderNum + ".temp");
@@ -208,6 +231,7 @@ namespace RemakeOrder
       Directory.Move(newOrderPath, orderFolderReady);
       pnlOrderInfo.Controls.Clear();
       txtOrderNum.Text = string.Empty;
+      lblOrderPath.Text = string.Empty;
 
       string doneMessage = "Changes saved and order submitted for reprocessing.\nThe new order number is " + newOrderNum;
       MessageBox.Show(doneMessage);
@@ -297,6 +321,17 @@ namespace RemakeOrder
         }
       }
       orderXml.Save(newOrderXml);
+    }
+
+    private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      Application.Exit();
     } //end modifyOrderXml
+
+    private void searchFoldersToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      ConfigFolders form = new ConfigFolders();
+      form.Show();
+    } //end searchFoldersToolStripMenuItem_Click
   }
 }
