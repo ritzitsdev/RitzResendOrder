@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
 
 namespace RemakeOrder
 {
@@ -97,37 +98,110 @@ namespace RemakeOrder
       int x = pnlOrderInfo.Controls["txtCustPhone"].Top;
       double q = 9.68;
       if (x > 27) { q = 5.68; }
+      int catYstart = 61;
       foreach (var product in qryProducts)
       {
-        double dblyStart = (i + q) * 22;
+        string uniqueId = product.Element("image").Attribute("path").Value;
+
+        double dblyStart = q * 22 + i;
         int yStart = Convert.ToInt32(dblyStart);
         Label redoLabel = new Label();
         redoLabel.Text = "Remake this item? ";
         redoLabel.Left = 6;
         redoLabel.Top = yStart - 2;
-        redoLabel.Name = "redoLabel_" + i;
+        redoLabel.Name = "redoLabel$" + uniqueId;
 
         CheckBox chkBox = new CheckBox();
         chkBox.Checked = false;
-        chkBox.Name = "chkRedo_" + i;
+        chkBox.Name = "chkRedo$" + uniqueId;
         chkBox.Left = 106;
         chkBox.Top = yStart - 8;
 
         pnlOrderInfo.Controls.Add(redoLabel);
         pnlOrderInfo.Controls.Add(chkBox);
 
+        string imageFile = Path.Combine(orderPath, uniqueId);
+
         yStart += 22;
-        addTxtBox("Product: ", product.Attribute("name").Value, "txtProdName_" + i, 6, yStart);
+        addTxtBox("Product: ", product.Attribute("name").Value, "txtProdName$" + uniqueId, 6, yStart);
         yStart += 22;
-        addTxtBox("Product Id: ", product.Attribute("product").Value, "txtProductId_" + i, 6, yStart);
+        addTxtBox("Product Id: ", product.Attribute("product").Value, "txtProductId$" + uniqueId, 6, yStart);
         yStart += 22;
-        addTxtBox("Quantity: ", product.Attribute("quantity").Value, "txtQuantity_" + i, 6, yStart);
+        addTxtBox("Quantity: ", product.Attribute("quantity").Value, "txtQuantity$" + uniqueId, 6, yStart);
+        yStart += 22;
+        addLinkText("Click here to view image or PDF.", imageFile, 6, yStart);
         yStart += 32;
 
+        //if categoryCheckBox chkBox_[this productID] doesn't exist add it
+        string catProductId = "catChkBox_" + product.Attribute("product").Value;
+        string catLabel = product.Attribute("name").Value;
+        if(!this.Controls.ContainsKey(catProductId)){
+          CheckBox catChkBox = new CheckBox();
+          catChkBox.Checked = false;
+          catChkBox.Name = catProductId;
+          catChkBox.Text = catLabel;
+          catChkBox.AutoSize = true;
+          catChkBox.Left = 344;
+          catChkBox.Top = catYstart;
+          catChkBox.CheckedChanged += new EventHandler(categoryChecked);
+
+          Controls.Add(catChkBox);
+          lblCatMessage.Visible = true;
+          catYstart = catYstart + 22;
+        }
+
         q = yStart / 22;
-        i += 1;
+        i = i + 1;
       }
     } //end showProductInfo
+
+    private void addLinkText(string linkText, string imageFile, int xStart, int yStart)
+    {
+      LinkLabel lnkImageFile = new LinkLabel();
+      lnkImageFile.Text = linkText;
+      lnkImageFile.AutoSize = true;
+      lnkImageFile.Left = xStart;
+      lnkImageFile.Top = yStart;
+      lnkImageFile.Links.Add(0, lnkImageFile.Text.ToString().Length, imageFile);
+      lnkImageFile.LinkClicked += new LinkLabelLinkClickedEventHandler(imageFile_LinkClicked);
+      pnlOrderInfo.Controls.Add(lnkImageFile);
+    }
+
+    private void imageFile_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+      if(File.Exists(e.Link.LinkData.ToString())){
+        Process.Start(e.Link.LinkData.ToString());
+      }
+      else{
+        MessageBox.Show("File not found.");
+        return;
+      }
+    }
+
+    private void categoryChecked(object sender, EventArgs e)
+    {
+      string catProdId = (sender as CheckBox).Name.Split(new Char[]{'_'})[1];
+      bool catChecked = ((CheckBox)sender).Checked;
+      foreach (var txtBox in pnlOrderInfo.Controls.OfType<TextBox>())
+      {
+        if (txtBox.Text == catProdId)
+        {
+          string FieldName = txtBox.Name;
+          string[] arrFieldName = FieldName.Split(new Char[] { '$' });
+          string uniqueId = arrFieldName[1];
+          string prodChkBoxName = "chkRedo$" + uniqueId;
+          CheckBox prodChkBox = this.Controls.Find(prodChkBoxName, true).First() as CheckBox;
+          if (catChecked)
+          {
+            prodChkBox.Checked = true;
+          }
+          else
+          {
+            prodChkBox.Checked = false;
+          }
+        }
+      }
+    } //end categoryChecked
 
     private void addTxtBox(string txtBoxLabel, string txtBoxValue, string txtBoxName, int xStart, int yStart)
     {
@@ -182,9 +256,23 @@ namespace RemakeOrder
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
+      //foreach (var chkBox in Controls.OfType<CheckBox>())
+      //{
+      //  Controls.Remove(chkBox);
+      //}
+      for (int i = Controls.Count - 1; i >= 0; i--)
+      {
+        Control c = Controls[i];
+        if (c is CheckBox)
+        {
+          Controls.RemoveAt(i);
+        }
+      }
+
       pnlOrderInfo.Controls.Clear();
       txtOrderNum.Text = string.Empty;
       lblOrderPath.Text = string.Empty;
+      lblCatMessage.Visible = false;
     }
 
     private void btnRemake_Click(object sender, EventArgs e)
@@ -229,9 +317,19 @@ namespace RemakeOrder
       modifyOrderXml(newOrderXml, newOrderNum);
       string orderFolderReady = newOrderPath.Replace("temp", "order");
       Directory.Move(newOrderPath, orderFolderReady);
+
+      for (int i = Controls.Count - 1; i >= 0; i--)
+      {
+        Control c = Controls[i];
+        if (c is CheckBox)
+        {
+          Controls.RemoveAt(i);
+        }
+      }
       pnlOrderInfo.Controls.Clear();
       txtOrderNum.Text = string.Empty;
       lblOrderPath.Text = string.Empty;
+      lblCatMessage.Visible = false;
 
       string doneMessage = "Changes saved and order submitted for reprocessing.\nThe new order number is " + newOrderNum;
       MessageBox.Show(doneMessage);
@@ -292,14 +390,14 @@ namespace RemakeOrder
       foreach (var checkBox in pnlOrderInfo.Controls.OfType<CheckBox>())
       {
         string chkBoxName = checkBox.Name;
-        string[] arrChkBoxName = chkBoxName.Split(new Char[] { '_' });
+        string[] arrChkBoxName = chkBoxName.Split(new Char[] { '$' });
         string i = arrChkBoxName[1];
-        string productId = pnlOrderInfo.Controls["txtProductId_" + i].Text;
-        string productName = pnlOrderInfo.Controls["txtProdName_" + i].Text;
-        string quantity = pnlOrderInfo.Controls["txtQuantity_" + i].Text;
+        string productId = pnlOrderInfo.Controls["txtProductId$" + i].Text;
+        string productName = pnlOrderInfo.Controls["txtProdName$" + i].Text;
+        string quantity = pnlOrderInfo.Controls["txtQuantity$" + i].Text;
 
         var qryProducts = from orderItems in orderXml.Elements("apm_order").Elements("shipment").Elements("order_item")
-                          where (string)orderItems.Attribute("product").Value == productId
+                          where (string)orderItems.Element("image").Attribute("path").Value == i
                           select orderItems;
         foreach (var product in qryProducts)
         {
